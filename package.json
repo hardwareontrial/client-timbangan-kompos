@@ -1,0 +1,47 @@
+{
+  "name": "kompos-ts-2",
+  "version": "0.0.2",
+  "description": "gui timbangan kompos",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc && electron .",
+    "start": "electron .",
+    "dist-win": "npx electron-builder build --windows portable"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "moment-timezone": "^0.6.0",
+    "mqtt": "^5.14.1",
+    "node-fetch": "^3.3.2",
+    "serialport": "^13.0.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "build": {
+    "appId": "com.molindo.timbangan-kompos",
+    "productName": "Timbangan-Kompos",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "dist-frontend/**/*",
+      "resources/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "resources/icon3.ico",
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
+  }
+}
