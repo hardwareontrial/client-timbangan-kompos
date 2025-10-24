@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   validatingUnlockForm: (formData: FormUserValidation): Promise<boolean> => ipcRenderer.invoke('validating_unlock_form', formData),
   dataByVehicleNumber: (vehicleNumber: string): Promise<ResponseDataTimbangan|undefined> => ipcRenderer.invoke('data_by_vehicle_number', vehicleNumber),
-  scaleValue: (): Promise<Pick<AppStore, "scale">> => ipcRenderer.invoke('req_scale_data'),
+  scaleValue: (): Promise<ScaleData> => ipcRenderer.invoke('req_scale_data'),
   processFormData: (formData: DataTimbangan): Promise<ResponseDataTimbangan|undefined> => ipcRenderer.invoke('create_data_form', formData),
   updatingFormData: (id: number, formData: DataTimbangan): Promise<ResponseDataTimbangan|undefined> => ipcRenderer.invoke('update_data_form', id, formData),
 
