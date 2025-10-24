@@ -14,6 +14,7 @@ Ketentuan:
 Build Portable:
 - Siapkan Alat
 - clone dari repo
+- lakukan command di PowerShell (Administrator)
 - jalankan npm install
 - perhatikan ketentuan
 - jalankan npm rebuild --runtime=electron --target=38.0.0 --dist-url=https://electronjs.org/headers (target sesuai versi electron)
