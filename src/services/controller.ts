@@ -3,14 +3,12 @@ import { sqliteService } from './database'
 import { appStoreFileService } from './app-store';
 import moment from 'moment-timezone';
 import { appConfigFileService } from './app-config';
+import { serialLib } from '../libs/serial';
 
 export class ControllerService {
   private static instance: ControllerService
   public controller!: ControllerService
   public unlockFormPeriod!: NodeJS.Timeout
-  // public mainWindow!: BrowserWindow|null
-  // public dataSendingContPeriode!: NodeJS.Timeout
-  // public readStorePeriode!: NodeJS.Timeout
 
   private constructor() {}
 
@@ -22,86 +20,7 @@ export class ControllerService {
     return ControllerService.instance;
   };
   
-  async init() {
-    // this.mainWindow = mainWindow;
-
-    // let appStore: AppStore;
-    // let appConfig: AppConfig;
-    // this.readStorePeriode = setInterval(async () => {
-    //   appConfig = await appConfigFileService.read();
-    //   appStore = await appStoreFileService.read();
-    // },1000);
-
-    /** TWO WAY COMM */
-    // ipcMain.handle('customer_list', async () => {
-    //   return await this.getCustomerList();
-    // })
-
-    // ipcMain.handle('nopol_list', async () => {
-    //   return await this.getNopolList();
-    // })
-
-    // ipcMain.handle('operator_list', async () => {
-    //   return await this.getOperatorList();
-    // })
-
-    // ipcMain.handle('product_list', async () => {
-    //   return await this.getProductList();
-    // })
-
-    // ipcMain.handle('validating_unlock_form', async (_, form:FormUserValidation) => {
-    //   return await this.validateUser(form);
-    // })
-
-    // ipcMain.handle('data_by_vehicle_number', async(_, number: string) => {
-    //   return await this.getDataByVehicleNum(number);
-    // })
-
-    // ipcMain.handle('req_scale_data', async () => {
-    //   return await this.getScaleData()
-    // })
-
-    // ipcMain.handle('create_data_form', async(_, formData:DataTimbangan) => {
-    //   return await this.createDocument(formData);
-    // })
-
-    // ipcMain.handle('update_data_form', async(_, id:number, formData:DataTimbangan) => {
-    //   const result = await this.updateDocument(id, formData)
-    //   if(result) this.toPrintDocument(result)
-    //   return result;
-    // })
-
-
-    // /** One Way Render -> Main */
-    // ipcMain.on('get_status_con', (_event, _) => {});
-
-    // ipcMain.on('form_locked', (_event, _) => {
-    //   if(this.unlockFormPeriod) {
-    //     appStoreFileService.update((data) => { data.formIsLock = false })
-    //     clearInterval(this.unlockFormPeriod);
-    //   }
-    // });
-
-    /** One Way Main -> Render */
-    // mainWindow?.webContents.on('did-finish-load', () => {
-    //   this.dataSendingContPeriode = setInterval(() => {
-    //     const now = this.getDatetime()
-    //     this.mainWindow?.webContents.send('datetime', moment(now).format('DD MMM YYYY | HH:mm:ss'));
-    //     this.mainWindow?.webContents.send('status_conn', {
-    //       mqtt: {
-    //         status: appStore['mqtt']['status'], 
-    //         url: appConfig['mqtt']['url'],
-    //         topic: ''
-    //       },
-    //       serial: {
-    //         status: appStore['serial']['status'],
-    //         path: appConfig['serial']['path']
-    //       }
-    //     })
-    //     // this.mainWindow?.webContents.send('scale_data', appStore)
-    //   },1000);
-    // })
-  }
+  async init() {}
 
   async getCustomerList(): Promise<string[]> {
     try {
@@ -167,13 +86,25 @@ export class ControllerService {
     }
   }
 
-  async getScaleData(): Promise<Pick<AppStore, 'scale'>> {
-    let content = await appStoreFileService.read();
-    if(content && content['scale']['timestamp']) {
-      const now = this.getDatetime()
-      content['scale']['timestamp'] = moment(now).format('YYYY-MM-DD HH:mm:ss')
+  async getScaleData(): Promise<ScaleData> {
+    const raw = serialLib.readRawData();
+    const now = this.getDatetime();
+    let result: ScaleData = {
+      timestamp: moment(now).format('YYYY-MM-DD HH:mm:ss'),
+      scale: 0,
+      status: 'US'
     }
-    return content as Pick<AppStore, 'scale'>
+
+    if(raw) {
+      const parts = raw.split(',');
+      if(parts.length >= 3) {
+        const _weight = parts[2];
+
+        result['status'] = parts[0] === 'ST' ? 'ST' : 'US';
+        result['scale'] = parseInt(_weight, 10);
+      }
+    }
+    return result
   }
 
   async createDocument(form:DataTimbangan): Promise<ResponseDataTimbangan|undefined> {
