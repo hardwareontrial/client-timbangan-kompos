@@ -13,6 +13,7 @@ import { syncService } from './services/sync';
 let mainWindow: BrowserWindow|null = null;
 let unlockPeriod: NodeJS.Timeout;
 let interval1: NodeJS.Timeout;
+let interval2: NodeJS.Timeout;
 let interval10: NodeJS.Timeout;
 
 async function createMainWindow(): Promise<void> {
@@ -45,6 +46,10 @@ async function createMainWindow(): Promise<void> {
       sendScaleData();
       sendStatus();
     },1000);
+
+    interval2 = setInterval(() => {
+      sendStatus();
+    }, 2000);
   });
 
   mainWindow.removeMenu();
@@ -135,16 +140,24 @@ function sendScaleData() {
 
   if(raw) {
     const parts = raw.split(',');
-    if(parts.length > 3) {
+    if(parts.length >= 3) {
+      // console.log(parts)
       const _weight = parts[2];
 
       value['status'] = parts[0] === 'ST' ? 'ST' : 'US';
       value['scale'] = parseInt(_weight, 10);
     }
+    // console.log(value);
   }
 
   if(mainWindow && mainWindow.webContents) {
     mainWindow.webContents.send('scale_data', value);
+  }
+
+  if(mqttService.mqttClient && interval2) {
+    mqttService.mqttClient.publish('timbangan-kompos/data-timbang-mesin', JSON.stringify(value), { qos: 1 }, (err) => {
+      if(err) console.log(`Error publish 'timbangan-kompos/data-timbang-mesin': ${err}`);
+    })
   }
 }
 
@@ -198,6 +211,7 @@ async function stopApp() {
 
   if(syncService) syncService.stopSync();
   if(interval1) clearInterval(interval1)
+  if(interval2) clearInterval(interval2)
 }
 
 const getLock = app.requestSingleInstanceLock();
