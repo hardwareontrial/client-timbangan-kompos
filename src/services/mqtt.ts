@@ -55,7 +55,7 @@ export class MqttService {
             await syncService.createOrUpdateOperatorList();
             await syncService.createOrUpdateProductList();
             await syncService.syncData();
-          }, 10000);
+          }, 45000); // sync every 45 seconds
         }
 
         if(!publishStatusPeriod) {
