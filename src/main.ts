@@ -44,7 +44,7 @@ async function createMainWindow(): Promise<void> {
       mainWindow?.webContents.send('datetime', datetime);
 
       sendScaleData();
-      sendStatus();
+      // sendStatus();
     },1000);
 
     interval2 = setInterval(() => {
@@ -84,7 +84,7 @@ ipcMain.handle('validating_unlock_form', async (_, form:FormUserValidation) => {
     unlockPeriod = setTimeout(() => {
       appStoreFileService.update((data) => { data.formIsLock = !result.status });
       mainWindow?.webContents.send('on_validating_unlock_form', !result.status);
-    }, 10000);
+    }, 180000); // 3 minutes
   }
 
   mainWindow?.webContents.send('on_validating_unlock_form', result.status);
@@ -225,8 +225,8 @@ if(!getLock) {
   })
 }
 
-["SIGINT", "SIGTERM", "SIGHUP"].forEach(signal => {
-  process.on(signal, () => { stopApp });
+["SIGINT", "SIGTERM", "SIGHUP", "SIGABRT"].forEach(signal => {
+  process.on(signal, () => { stopApp() });
   // app.quit()
 });
 
