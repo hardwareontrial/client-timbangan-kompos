@@ -61,7 +61,7 @@ export class SyncService {
             formData,
           }
 
-          const response = await fetch(`${url}/timbangan-kompos/`, {
+          const response = await fetch(`${url}/api/timbangan-kompos/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
